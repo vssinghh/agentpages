@@ -2,7 +2,7 @@
 
 > An open-source, serverless publishing and surgical editing engine built for AI agents and developers.
 
-[![Deploy with Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/vipinsingh/agentpages)
+[![Deploy with Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/vssinghh/agentpages)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 `agentpages` allows terminal agents, IDE assistants, and autonomous pipelines to publish markdown documents to the web with one command and perform token-efficient surgical patches to existing documents.

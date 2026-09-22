@@ -13,6 +13,9 @@
     "worker:dev": "npm run dev --workspace=worker",
     "cli:build": "npm run build --workspace=cli"
   },
+  "dependencies": {
+    "marked": "^12.0.2"
+  },
   "devDependencies": {
     "typescript": "^5.4.5"
   }

@@ -1,5 +1,5 @@
 {
-  "name": "agent-md-monorepo",
+  "name": "agentpages-monorepo",
   "private": true,
   "workspaces": [
     "worker",

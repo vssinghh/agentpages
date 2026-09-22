@@ -1,9 +1,10 @@
 {
-  "name": "agent-md-worker",
+  "name": "agentpages-worker",
   "version": "0.1.0",
-  "description": "Serverless edge worker for agent-md markdown publishing and surgical patching",
+  "description": "Serverless edge worker for agentpages markdown publishing and surgical patching",
   "main": "src/index.ts",
   "scripts": {
+    "build": "tsc --noEmit",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "vitest run"

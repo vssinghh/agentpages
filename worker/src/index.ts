@@ -68,7 +68,7 @@ export default {
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>agent-md &bull; Agent-First Markdown Publishing</title>
+  <title>agentpages &bull; Agent-First Markdown Publishing</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 680px; margin: 4rem auto; padding: 0 1.5rem; line-height: 1.6; color: #1f2937; }
     code { background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
@@ -77,10 +77,10 @@ export default {
   </style>
 </head>
 <body>
-  <h1>agent-md Edge Worker</h1>
+  <h1>agentpages Edge Worker</h1>
   <p>An open-source, serverless publishing and surgical editing engine for AI agents and developers.</p>
   <h3>CLI Quick Start</h3>
-  <pre>npm install -g agent-md\nagent-md login\nagent-md publish spec.md</pre>
+  <pre>npm install -g agentpages\nagentpages login\nagentpages publish spec.md</pre>
   <p>Learn more on <a href="https://github.com">GitHub</a>.</p>
 </body>
 </html>`,

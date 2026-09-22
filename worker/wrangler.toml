@@ -1,4 +1,4 @@
-name = "agent-md"
+name = "agentpages"
 main = "src/index.ts"
 compatibility_date = "2024-05-12"
 
@@ -9,5 +9,5 @@ ADMIN_SECRET = ""
 
 [[kv_namespaces]]
 binding = "DOCS_KV"
-id = "agent_md_docs_kv"
-preview_id = "agent_md_docs_kv_preview"
+id = "agentpages_docs_kv"
+preview_id = "agentpages_docs_kv_preview"

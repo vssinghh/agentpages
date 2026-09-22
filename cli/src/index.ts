@@ -3,12 +3,12 @@ import { Command } from 'commander';
 import fs from 'fs';
 import readline from 'readline';
 import { loadConfig, saveConfig } from './config';
-import { AgentMdClient } from './client';
+import { AgentPagesClient } from './client';
 
 const program = new Command();
 
 program
-  .name('agent-md')
+  .name('agentpages')
   .description('Agent-first markdown publishing and surgical editing CLI')
   .version('0.1.0');
 
@@ -47,7 +47,7 @@ program
       adminSecret: secret ? secret.trim() : '',
     });
 
-    console.log('Configuration saved successfully to ~/.agent-md/config.json');
+    console.log('Configuration saved successfully to ~/.agentpages/config.json');
   });
 
 // Publish command
@@ -71,7 +71,7 @@ program
       }
 
       const config = loadConfig();
-      const client = new AgentMdClient(config);
+      const client = new AgentPagesClient(config);
       const res = await client.publish(content, {
         slug: options.slug,
         ttl: options.ttl,
@@ -99,7 +99,7 @@ program
   .action(async (id, options) => {
     try {
       const config = loadConfig();
-      const client = new AgentMdClient(config);
+      const client = new AgentPagesClient(config);
       const data = await client.getOutline(id);
 
       if (options.json) {
@@ -164,7 +164,7 @@ program
       }
 
       const config = loadConfig();
-      const client = new AgentMdClient(config);
+      const client = new AgentPagesClient(config);
       const res = await client.patch(id, patchPayload, options.editKey);
 
       if (options.json) {
@@ -188,7 +188,7 @@ program
   .action(async (id, options) => {
     try {
       const config = loadConfig();
-      const client = new AgentMdClient(config);
+      const client = new AgentPagesClient(config);
       const doc = await client.getDocument(id);
 
       if (options.json) {
@@ -211,7 +211,7 @@ program
   .action(async (id, options) => {
     try {
       const config = loadConfig();
-      const client = new AgentMdClient(config);
+      const client = new AgentPagesClient(config);
       const res = await client.delete(id, options.editKey);
 
       if (options.json) {

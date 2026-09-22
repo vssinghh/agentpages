@@ -166,7 +166,7 @@ export function renderReaderView(doc: DocumentRecord, renderedHtml: string): str
     </article>
   </main>
   <footer>
-    Published with <a href="https://github.com" target="_blank" style="color: inherit; font-weight: 500;">agent-md</a>
+    Published with <a href="https://github.com" target="_blank" style="color: inherit; font-weight: 500;">agentpages</a>
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>

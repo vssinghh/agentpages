@@ -1,9 +1,9 @@
 {
-  "name": "agent-md",
+  "name": "agentpages",
   "version": "0.1.0",
-  "description": "CLI tool for agent-first markdown publishing and surgical editing",
+  "description": "Agent-first markdown publishing and surgical editing CLI",
   "bin": {
-    "agent-md": "./dist/index.js"
+    "agentpages": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "scripts": {

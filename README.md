@@ -1,11 +1,11 @@
-# agent-md
+# agentpages
 
 > An open-source, serverless publishing and surgical editing engine built for AI agents and developers.
 
-[![Deploy with Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/vipinsingh/agent-md)
+[![Deploy with Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/vipinsingh/agentpages)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-`agent-md` allows terminal agents, IDE assistants, and autonomous pipelines to publish markdown documents to the web with one command and perform token-efficient surgical patches to existing documents.
+`agentpages` allows terminal agents, IDE assistants, and autonomous pipelines to publish markdown documents to the web with one command and perform token-efficient surgical patches to existing documents.
 
 ---
 
@@ -14,9 +14,9 @@
 * **What is it?**
   A personal edge microservice deployed to Cloudflare Workers with an accompanying CLI tool. It takes markdown files, renders them as fast public web pages, and exposes an API for surgical section edits.
 * **Why do we use it?**
-  Publishing documents usually means paying for closed SaaS platforms or sharing unstyled code gists. When editing documents, AI agents are typically forced to rewrite entire 5,000-word files, wasting thousands of output tokens. `agent-md` is 100% free forever and allows agents to patch specific sections using single-sentence tool calls.
+  Publishing documents usually means paying for closed SaaS platforms or sharing unstyled code gists. When editing documents, AI agents are typically forced to rewrite entire 5,000-word files, wasting thousands of output tokens. `agentpages` is 100% free forever and allows agents to patch specific sections using single-sentence tool calls.
 * **How do we use it?**
-  Deploy the Worker with one click to your free Cloudflare account. Use the `agent-md` CLI to publish, inspect outlines, and patch sections.
+  Deploy the Worker with one click to your free Cloudflare account. Use the `agentpages` CLI to publish, inspect outlines, and patch sections.
 * **Which teams use it?**
   Engineers publishing Architecture Decision Records (ADRs), autonomous coding agents sharing runbooks and research memos, and technical writers sharing project briefs.
 
@@ -52,20 +52,20 @@ Copy your deployed Worker URL (for example, `https://my-docs.workers.dev`).
 ### Step 2: Install the CLI
 
 ```bash
-npm install -g agent-md
+npm install -g agentpages
 ```
 
 ### Step 3: Connect the CLI
 
 ```bash
-agent-md login
+agentpages login
 ```
-Follow the interactive prompts to enter your Worker URL and optional Admin Secret. Credentials are saved locally to `~/.agent-md/config.json`.
+Follow the interactive prompts to enter your Worker URL and optional Admin Secret. Credentials are saved locally to `~/.agentpages/config.json`.
 
 Alternatively, set environment variables:
 ```bash
-export AGENT_MD_URL="https://my-docs.workers.dev"
-export AGENT_MD_SECRET="my-secret-key"
+export AGENTPAGES_URL="https://my-docs.workers.dev"
+export AGENTPAGES_SECRET="my-secret-key"
 ```
 
 ---
@@ -75,13 +75,13 @@ export AGENT_MD_SECRET="my-secret-key"
 ### A. Publish a Document
 ```bash
 # Human usage:
-agent-md publish architecture.md
+agentpages publish architecture.md
 
 # Set an expiration time (e.g. 24 hours, 7 days):
-agent-md publish meeting-notes.md --ttl 24h
+agentpages publish meeting-notes.md --ttl 24h
 
 # Agent usage (machine-readable JSON output):
-agent-md publish spec.md --json
+agentpages publish spec.md --json
 ```
 
 Output:
@@ -101,7 +101,7 @@ Output:
 Before modifying a large document, agents can fetch the outline to identify headings and token weights:
 
 ```bash
-agent-md outline 8f2a1b
+agentpages outline 8f2a1b
 ```
 Output:
 ```text
@@ -115,7 +115,7 @@ Document ID: 8f2a1b
 
 Or machine-readable JSON:
 ```bash
-agent-md outline 8f2a1b --json
+agentpages outline 8f2a1b --json
 ```
 
 ---
@@ -127,7 +127,7 @@ Instead of rewriting the entire document, agents send only the target section or
 #### 1. Replace a Section by Heading
 Replaces everything under `## Database Schema` until the next heading of equal or higher level:
 ```bash
-agent-md patch 8f2a1b \
+agentpages patch 8f2a1b \
   --section "Database Schema" \
   --content "Migrated to Cloudflare D1 for SQLite edge storage." \
   --json
@@ -135,7 +135,7 @@ agent-md patch 8f2a1b \
 
 #### 2. Exact Text Search and Replace
 ```bash
-agent-md patch 8f2a1b \
+agentpages patch 8f2a1b \
   --find "status: draft" \
   --replace "status: stable" \
   --json
@@ -143,7 +143,7 @@ agent-md patch 8f2a1b \
 
 #### 3. Append to a Section
 ```bash
-agent-md patch 8f2a1b \
+agentpages patch 8f2a1b \
   --section "Deployment Plan" \
   --append "* Verified global latency in us-east and eu-west." \
   --json
@@ -154,10 +154,10 @@ agent-md patch 8f2a1b \
 ### D. Reading and Deleting
 ```bash
 # Fetch raw markdown:
-agent-md get 8f2a1b
+agentpages get 8f2a1b
 
 # Delete document:
-agent-md delete 8f2a1b
+agentpages delete 8f2a1b
 ```
 
 ---
@@ -169,7 +169,7 @@ Comparing edits on an 8-page technical specification (~4,000 tokens):
 | Strategy | Agent Input Tokens | Agent Output Tokens | Network Payload | Latency |
 | :--- | :--- | :--- | :--- | :--- |
 | **Full Document Rewrite** | ~4,000 | ~4,000 | ~16 KB | ~12 to 18 seconds |
-| **agent-md Surgical Patch** | 0 to ~300 | ~35 | ~200 bytes | ~300 milliseconds |
+| **agentpages Surgical Patch** | 0 to ~300 | ~35 | ~200 bytes | ~300 milliseconds |
 
 The surgical approach saves over **98%** of LLM output tokens and applies updates in hundreds of milliseconds.
 

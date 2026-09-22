@@ -163,9 +163,9 @@ export function renderEditorView(doc: DocumentRecord): string {
     const keyFromUrl = urlParams.get('key') || urlParams.get('edit');
     if (keyFromUrl) {
       editKeyInput.value = keyFromUrl;
-      localStorage.setItem('agent_md_edit_key_${doc.id}', keyFromUrl);
+      localStorage.setItem('agentpages_edit_key_${doc.id}', keyFromUrl);
     } else {
-      const stored = localStorage.getItem('agent_md_edit_key_${doc.id}') || localStorage.getItem('agent_md_admin_secret');
+      const stored = localStorage.getItem('agentpages_edit_key_${doc.id}') || localStorage.getItem('agentpages_admin_secret');
       if (stored) editKeyInput.value = stored;
     }
 

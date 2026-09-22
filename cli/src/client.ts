@@ -1,4 +1,4 @@
-import { AgentMdConfig } from './config';
+import { AgentPagesConfig } from './config';
 
 export function parseTtlToSeconds(ttlStr?: string): number | undefined {
   if (!ttlStr) return undefined;
@@ -17,11 +17,11 @@ export function parseTtlToSeconds(ttlStr?: string): number | undefined {
   }
 }
 
-export class AgentMdClient {
-  constructor(private config: AgentMdConfig) {
+export class AgentPagesClient {
+  constructor(private config: AgentPagesConfig) {
     if (!config.workerUrl) {
       throw new Error(
-        'Worker URL is not configured. Run "agent-md login" or set AGENT_MD_URL environment variable.'
+        'Worker URL is not configured. Run "agentpages login" or set AGENTPAGES_URL environment variable.'
       );
     }
   }

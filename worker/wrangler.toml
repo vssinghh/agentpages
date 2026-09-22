@@ -1,0 +1,13 @@
+name = "agent-md"
+main = "src/index.ts"
+compatibility_date = "2024-05-12"
+
+[vars]
+# When empty, any client can publish if they have network access.
+# Set an ADMIN_SECRET to restrict publishing and administrative actions.
+ADMIN_SECRET = ""
+
+[[kv_namespaces]]
+binding = "DOCS_KV"
+id = "agent_md_docs_kv"
+preview_id = "agent_md_docs_kv_preview"

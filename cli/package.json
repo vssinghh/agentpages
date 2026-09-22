@@ -1,0 +1,20 @@
+{
+  "name": "agent-md",
+  "version": "0.1.0",
+  "description": "CLI tool for agent-first markdown publishing and surgical editing",
+  "bin": {
+    "agent-md": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5"
+  }
+}

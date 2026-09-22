@@ -7,6 +7,7 @@ import {
   appendToSection,
   generateRandomId,
 } from '../src/engine/patcher';
+import { renderMarkdown, sanitizeHtml } from '../src/engine/renderer';
 
 describe('Surgical Patcher Engine', () => {
   const sampleDoc = `# My Project Spec
@@ -93,5 +94,115 @@ Postgres on Supabase.
   it('appends text to the end of a section before the next heading', () => {
     const updated = appendToSection(sampleDoc, 'Roadmap', '* Item 3: Ship MVP');
     expect(updated).toContain('* Item 2\n\n* Item 3: Ship MVP');
+  });
+
+  it('ignores comments and hashes inside code blocks', () => {
+    const codeDoc = `# API Docs
+
+## Code Samples
+
+Here is Python code:
+
+\`\`\`python
+# This is a python comment, not a heading!
+def connect():
+    # Another comment
+    return True
+\`\`\`
+
+## Deployment
+
+Deploy steps here.
+`;
+
+    const outline = extractOutline(codeDoc);
+    expect(outline).toHaveLength(3);
+    expect(outline.map((o) => o.heading)).toEqual(['API Docs', 'Code Samples', 'Deployment']);
+
+    // Replacing Code Samples must not stop at python comments
+    const updated = replaceSection(codeDoc, 'Code Samples', 'Code samples moved to docs.');
+    expect(updated).toContain('## Code Samples\n\nCode samples moved to docs.\n\n## Deployment');
+    expect(updated).not.toContain('def connect()');
+  });
+
+  it('handles regex special characters in heading titles', () => {
+    const specialDoc = `# Title
+
+## C++ & Special [Chars] (v1.0)?
+
+Details about C++ and regex symbols.
+
+## Next Section
+
+Finished.
+`;
+
+    const outline = extractOutline(specialDoc);
+    expect(outline[1].heading).toBe('C++ & Special [Chars] (v1.0)?');
+
+    const updated = replaceSection(
+      specialDoc,
+      'C++ & Special [Chars] (v1.0)?',
+      'Updated content with special symbols successfully.'
+    );
+    expect(updated).toContain('Updated content with special symbols successfully.');
+    expect(updated).toContain('## Next Section');
+  });
+
+  it('supports hierarchical heading paths to resolve duplicate names', () => {
+    const multiDoc = `# System
+
+## Backend
+### Storage
+SQL Database
+
+## Frontend
+### Storage
+Local Storage
+`;
+
+    const updated = replaceSection(multiDoc, 'Frontend > Storage', 'IndexedDB cache');
+    expect(updated).toContain('SQL Database');
+    expect(updated).toContain('IndexedDB cache');
+    expect(updated).not.toContain('Local Storage');
+  });
+
+  it('handles Unicode and emoji in headings', () => {
+    const unicodeDoc = `# 🚀 Project Alpha
+
+## 📦 架构设计 (Architecture)
+
+中文内容描述。
+
+## 🎯 目标 (Goals)
+
+Global edge delivery.
+`;
+
+    const outline = extractOutline(unicodeDoc);
+    expect(outline[0].heading).toBe('🚀 Project Alpha');
+    expect(outline[1].heading).toBe('📦 架构设计 (Architecture)');
+
+    const updated = replaceSection(unicodeDoc, '📦 架构设计 (Architecture)', '更新的架构说明。');
+    expect(updated).toContain('更新的架构说明。');
+    expect(updated).toContain('## 🎯 目标 (Goals)');
+  });
+
+  it('sanitizes HTML to prevent script injection (XSS)', () => {
+    const maliciousDoc = `# Test Page
+
+<script>alert("xss")</script>
+<img src="x" onerror="alert(1)">
+<iframe src="https://evil.com"></iframe>
+
+[Normal Link](https://example.com)
+`;
+
+    const html = renderMarkdown(maliciousDoc);
+    expect(html).not.toContain('<script');
+    expect(html).not.toContain('alert("xss")');
+    expect(html).not.toContain('onerror=');
+    expect(html).not.toContain('<iframe');
+    expect(html).toContain('href="https://example.com"');
   });
 });

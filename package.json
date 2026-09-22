@@ -8,6 +8,8 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm run test --workspace=worker",
+    "test:e2e": "node test/e2e-exhaustive.js",
+    "test:all": "npm test && npm run test:e2e",
     "worker:dev": "npm run dev --workspace=worker",
     "cli:build": "npm run build --workspace=cli"
   },

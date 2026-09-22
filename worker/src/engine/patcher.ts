@@ -12,73 +12,135 @@ export function generateRandomId(length = 8): string {
 }
 
 export function extractTitle(markdown: string): string {
-  const match = markdown.match(/^#\s+(.+)$/m);
-  if (match && match[1]) {
-    return match[1].trim();
+  const headings = findHeadings(markdown);
+  const h1 = headings.find((h) => h.level === 1);
+  if (h1) {
+    return h1.heading;
   }
-  const lines = markdown.split('\n');
+  if (headings.length > 0) {
+    return headings[0].heading;
+  }
+
+  const lines = markdown.split(/\r?\n/);
   for (const line of lines) {
     const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith('<!--') && !trimmed.startsWith('---')) {
+    if (trimmed && !trimmed.startsWith('<!--') && !trimmed.startsWith('---') && !trimmed.startsWith('```')) {
       return trimmed.slice(0, 60);
     }
   }
   return 'Untitled Document';
 }
 
-export function extractOutline(markdown: string): OutlineItem[] {
-  const headingRegex = /^(#{1,6})\s+(.+)$/gm;
-  const items: { level: number; heading: string; index: number }[] = [];
-  let match: RegExpExecArray | null;
+export interface HeadingMatch {
+  level: number;
+  heading: string;
+  index: number;
+  endIndex: number;
+  path: string[];
+}
 
-  while ((match = headingRegex.exec(markdown)) !== null) {
-    items.push({
-      level: match[1].length,
-      heading: match[2].trim(),
-      index: match.index
-    });
+export function findHeadings(markdown: string): HeadingMatch[] {
+  const lines = markdown.split(/\r?\n/);
+  const headings: HeadingMatch[] = [];
+  let currentIndex = 0;
+  let inCodeFence = false;
+  let codeFenceChar = '';
+  const currentPath: { level: number; heading: string }[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lineStart = currentIndex;
+    currentIndex += line.length + 1; // +1 for the newline separator
+    const trimmed = line.trimStart();
+
+    // Check for fenced code block start or end (``` or ~~~)
+    const fenceMatch = trimmed.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const marker = fenceMatch[1];
+      if (!inCodeFence) {
+        inCodeFence = true;
+        codeFenceChar = marker[0];
+      } else if (marker[0] === codeFenceChar) {
+        inCodeFence = false;
+        codeFenceChar = '';
+      }
+      continue;
+    }
+
+    if (inCodeFence) {
+      continue;
+    }
+
+    // Markdown heading: 1-6 '#' followed by whitespace
+    const headingMatch = line.match(/^(\#{1,6})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      // Strip trailing hashes (e.g. "## Heading ##" -> "Heading")
+      const rawHeading = headingMatch[2].replace(/\s+#+\s*$/, '').trim();
+
+      while (currentPath.length > 0 && currentPath[currentPath.length - 1].level >= level) {
+        currentPath.pop();
+      }
+      currentPath.push({ level, heading: rawHeading });
+
+      headings.push({
+        level,
+        heading: rawHeading,
+        index: lineStart,
+        endIndex: Math.min(currentIndex, markdown.length),
+        path: currentPath.map((p) => p.heading),
+      });
+    }
   }
 
+  return headings;
+}
+
+export function extractOutline(markdown: string): OutlineItem[] {
+  const headings = findHeadings(markdown);
   const result: OutlineItem[] = [];
-  for (let i = 0; i < items.length; i++) {
-    const current = items[i];
-    const nextIndex = i + 1 < items.length ? items[i + 1].index : markdown.length;
+
+  for (let i = 0; i < headings.length; i++) {
+    const current = headings[i];
+    const nextIndex = i + 1 < headings.length ? headings[i + 1].index : markdown.length;
     const charCount = nextIndex - current.index;
     result.push({
       level: current.level,
       heading: current.heading,
-      char_count: charCount
+      char_count: charCount,
     });
   }
 
   return result;
 }
 
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function matchTargetHeading(h: HeadingMatch, target: string): boolean {
+  const cleanTarget = target.replace(/^#+\s*/, '').trim().toLowerCase();
+  if (cleanTarget.includes('>')) {
+    const targetPath = cleanTarget
+      .split('>')
+      .map((s) => s.trim())
+      .join(' > ');
+    const fullPath = h.path.map((s) => s.toLowerCase()).join(' > ');
+    return fullPath.endsWith(targetPath) || fullPath === targetPath;
+  }
+  return h.heading.trim().toLowerCase() === cleanTarget;
 }
 
 export function replaceSection(markdown: string, targetHeading: string, newContent: string): string {
-  const cleanTarget = targetHeading.replace(/^#+\s*/, '').trim();
-  const escaped = escapeRegExp(cleanTarget);
-  const headingPattern = new RegExp(`^(#{1,6})\\s+${escaped}\\s*$`, 'm');
-  const match = headingPattern.exec(markdown);
+  const headings = findHeadings(markdown);
+  const targetIndex = headings.findIndex((h) => matchTargetHeading(h, targetHeading));
 
-  if (!match) {
+  if (targetIndex === -1) {
+    const cleanTarget = targetHeading.replace(/^#+\s*/, '').trim();
     throw new Error(`Section with heading "${cleanTarget}" was not found in the document.`);
   }
 
-  const headingLevel = match[1].length;
-  const headingLine = match[0];
-  const startIndex = match.index + headingLine.length;
+  const matched = headings[targetIndex];
+  const nextHeading = headings.slice(targetIndex + 1).find((h) => h.level <= matched.level);
+  const endIndex = nextHeading ? nextHeading.index : markdown.length;
 
-  const nextHeadingPattern = new RegExp(`^#{1,${headingLevel}}\\s+`, 'gm');
-  nextHeadingPattern.lastIndex = startIndex;
-  const nextMatch = nextHeadingPattern.exec(markdown);
-
-  const endIndex = nextMatch ? nextMatch.index : markdown.length;
-
-  const before = markdown.slice(0, startIndex);
+  const before = markdown.slice(0, matched.endIndex);
   const after = markdown.slice(endIndex);
 
   const formattedContent = newContent.startsWith('\n') ? newContent : `\n\n${newContent.trim()}\n\n`;
@@ -87,24 +149,17 @@ export function replaceSection(markdown: string, targetHeading: string, newConte
 }
 
 export function appendToSection(markdown: string, targetHeading: string, addition: string): string {
-  const cleanTarget = targetHeading.replace(/^#+\s*/, '').trim();
-  const escaped = escapeRegExp(cleanTarget);
-  const headingPattern = new RegExp(`^(#{1,6})\\s+${escaped}\\s*$`, 'm');
-  const match = headingPattern.exec(markdown);
+  const headings = findHeadings(markdown);
+  const targetIndex = headings.findIndex((h) => matchTargetHeading(h, targetHeading));
 
-  if (!match) {
+  if (targetIndex === -1) {
+    const cleanTarget = targetHeading.replace(/^#+\s*/, '').trim();
     throw new Error(`Section with heading "${cleanTarget}" was not found in the document.`);
   }
 
-  const headingLevel = match[1].length;
-  const headingLine = match[0];
-  const startIndex = match.index + headingLine.length;
-
-  const nextHeadingPattern = new RegExp(`^#{1,${headingLevel}}\\s+`, 'gm');
-  nextHeadingPattern.lastIndex = startIndex;
-  const nextMatch = nextHeadingPattern.exec(markdown);
-
-  const insertIndex = nextMatch ? nextMatch.index : markdown.length;
+  const matched = headings[targetIndex];
+  const nextHeading = headings.slice(targetIndex + 1).find((h) => h.level <= matched.level);
+  const insertIndex = nextHeading ? nextHeading.index : markdown.length;
 
   const before = markdown.slice(0, insertIndex).trimEnd();
   const after = markdown.slice(insertIndex);

@@ -2,7 +2,7 @@
 import { Command } from 'commander';
 import fs from 'fs';
 import readline from 'readline';
-import { loadConfig, saveConfig } from './config';
+import { loadConfig, saveConfig, saveDocKey, getDocKey } from './config';
 import { AgentPagesClient } from './client';
 
 const program = new Command();
@@ -76,6 +76,10 @@ program
         slug: options.slug,
         ttl: options.ttl,
       });
+
+      if (res.id && res.edit_key) {
+        saveDocKey(res.id as string, res.edit_key as string);
+      }
 
       if (options.json) {
         console.log(JSON.stringify(res, null, 2));
@@ -165,7 +169,8 @@ program
 
       const config = loadConfig();
       const client = new AgentPagesClient(config);
-      const res = await client.patch(id, patchPayload, options.editKey);
+      const effectiveKey = options.editKey || getDocKey(id);
+      const res = await client.patch(id, patchPayload, effectiveKey);
 
       if (options.json) {
         console.log(JSON.stringify(res, null, 2));
@@ -212,7 +217,8 @@ program
     try {
       const config = loadConfig();
       const client = new AgentPagesClient(config);
-      const res = await client.delete(id, options.editKey);
+      const effectiveKey = options.editKey || getDocKey(id);
+      const res = await client.delete(id, effectiveKey);
 
       if (options.json) {
         console.log(JSON.stringify(res, null, 2));

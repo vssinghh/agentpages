@@ -43,9 +43,7 @@ function verifyAuth(request: Request, env: Env, doc?: DocumentRecord): boolean {
   }
 
   if (!env.ADMIN_SECRET || env.ADMIN_SECRET.trim().length === 0) {
-    if (!doc) {
-      return true;
-    }
+    return true;
   }
 
   return false;
